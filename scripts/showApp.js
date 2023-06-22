@@ -1,7 +1,6 @@
-function createFormData(form) {
-    console.log('Creating formdata...');
-    let formData = new FormData(form);
-    localStorage.setItem('hostname', formData.get('hostname'));
-    formData.delete('hostname');
-    return formData;
-}
+function showApp(formData) {
+    console.log('Showing app interface...')
+    login.classList.add('d-none');
+    app.classList.remove('d-none');
+    compareIps(formData, sessionStorage.getItem(ip), getIp());
+};

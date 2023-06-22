@@ -1,8 +1,7 @@
-async function compareIps(credentials, currentIp, fetchedIp) {
-    console.log('Comparing current with fetched IP...');
-    if (currentIp != fetchedIp) {
-        currentIp = fetchedIp;
-        ip.innerText = currentIp;
-        updateService(credentials, currentIp);
-     }
+function createFormData(form) {
+    console.log('Creating formdata...');
+    let formData = new FormData(form);
+    localStorage.setItem('hostname', formData.get('hostname'));
+    formData.delete('hostname');
+    return formData;
 }

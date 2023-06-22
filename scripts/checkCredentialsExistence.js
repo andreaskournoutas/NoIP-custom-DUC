@@ -1,6 +1,16 @@
-function saveCredentials(formData) {
-    navigator.credentials.store(new PasswordCredential(formData))
-    .then(() => {
-        localStorage.setItem(hostname) = hostInput.value;
-    });
+function checkCredentialsExistence() {
+    const cred = navigator.credentials.get({password: true})
+    .then((cred) => {
+        if (cred) {
+            if (localStorage.getItem(hostname)) {
+                showApp(cred);
+            }
+            else {
+                showLogin();
+            }
+        }
+        else {
+            showLogin();
+        }
+    })
 }

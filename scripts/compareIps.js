@@ -1,7 +1,8 @@
-function getIp() {
-    console.log('IP detection initialized');
-    fetch('https://ip1.dynupdate.no-ip.com/', {mode: 'no-cors'})
-    .then((response) => {console.log(response); return response.text()})
-    .then((data) => {console.log(data)});
-
+async function compareIps(credentials, currentIp, fetchedIp) {
+    console.log('Comparing current with fetched IP...');
+    if (currentIp != fetchedIp) {
+        currentIp = fetchedIp;
+        ip.innerText = currentIp;
+        updateService(credentials, currentIp);
+     }
 }

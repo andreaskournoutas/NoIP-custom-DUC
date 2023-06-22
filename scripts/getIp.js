@@ -1,12 +1,6 @@
-function updateService(credentials, currentIp) {
-    console.log('No-IP update request initialized');
-    fetch('http://dynupdate.no-ip.com/nic/update?hostname=' + localStorage.getItem('hostname') + '&myip=' + currentIp, {
-        body: credentials,
-        mode: 'no-cors',
-        credentials: 'include'
-    })
-    .then((response) => {
-        console.log(response.text());
-        runCounter(interval, credentials);;
-    });
+function getIp() {
+    console.log('IP detection initialized');
+    fetch('https://ip1.dynupdate.no-ip.com/', {mode: 'no-cors'})
+    .then((response) => {console.log(response); return response.text()})
+    .then((data) => {console.log(data)});
 }
