@@ -68,15 +68,127 @@
                 </div>
             </main>
         </div>
-        <script src="scripts/checkCredentialsExistence.js"></script>
-        <script src="scripts/compareIps.js"></script>
-        <script src="scripts/createFormData.js"></script>
-        <script src="scripts/getIp.js"></script>
-        <script src="scripts/runCounter.js"></script>
-        <script src="scripts/saveCredentials.js"></script>
-        <script src="scripts/showApp.js"></script>
-        <script src="scripts/showLogin.js"></script>
-        <script src="scripts/updateService.js"></script>
-        <script src="scripts/initialize.js"></script>
+        <script>
+            const login = document.getElementById('login'),
+                  form = document.getElementById('form'),
+                  submit = document.getElementById('submit'),
+                  app = document.getElementById('app'),
+                  counter = document.getElementById('counter'),
+                  ip = document.getElementById('ip'),
+                  result = document.getElementById('result'),
+                  interval = 300;
+
+            submit.addEventListener('click', createFormData());
+
+            showLogin();
+
+            function checkCredentialsExistence() {
+                const cred = navigator.credentials.get({password: true})
+                .then((cred) => {
+                    if (cred) {
+                        if (localStorage.getItem(hostname)) {
+                            showApp(cred, localStorage.getItem(hostname));
+                        }
+                        else {
+                            showLogin();
+                        }
+                    }
+                    else {
+                        showLogin();
+                    }
+                })
+            }
+
+            function showLogin() {
+                console.log('Showing login form...');
+                app.classList.add('d-none');
+                login.classList.remove('d-none');
+            }
+
+            function showApp(formData, hostname) {
+                console.log('Showing app interface...')
+                login.classList.add('d-none');
+                app.classList.remove('d-none');
+                compareIps(formData, hostname, sessionStorage.getItem(ip), getIp());
+            };
+
+            function createFormData(form) {
+                console.log('Creating formdata...');
+                let formData = new FormData(form);
+                localStorage.setItem('hostname', formData.get('hostname'));
+                formData.delete('hostname');
+                showApp(formData, localStorage.getItem(hostname));
+            }
+
+            function getIp() {
+                console.log('IP detection initialized');
+                fetch('https://api.ipify.org?format=json')
+                .then((response) => response.json())
+                .then((response) => {return response.ip});
+            }
+
+            function compareIps(credentials, hostname, currentIp, fetchedIp) {
+                console.log('Comparing current with fetched IP...');
+                if (currentIp != fetchedIp) {
+                    currentIp = fetchedIp;
+                    sessionStorage.setItem('ip', currentIp);
+                    ip.innerText = currentIp;
+                    updateService(credentials, hostname, currentIp);
+                }
+                else {
+                    runCounter(interval, credentials, hostname);
+                }
+            }
+
+            function updateService(credentials, hostname, currentIp) {
+                console.log('Service update request initialized');
+                fetch('http://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
+                    headers: {
+                        'Authorization': `Basic ${encodeCredentials(credentials)}`
+                    }
+                })
+                .then((response) => {
+                    if (response.ok) {
+                        console.log('Service update successful');
+                        result.classList.remove('text-danger');
+                        result.classList.add('text-success');
+                        result.innerText = 'SUCCESSFULLY';
+                    }
+                    else {
+                        console.log('Service update unsuccessful');
+                        result.classList.remove('text-success');
+                        result.classList.add('text-danger');
+                        result.innerText = 'UNSUCCESSFULLY';
+                    }
+                    runCounter(interval, credentials, hostname);
+                });
+            }
+
+            function encodeCredentials(credentials) {
+                return btoa(`${credentials.get('username')}:${credentials.get('password')}`);
+            }
+
+            function saveCredentials(formData) {
+                navigator.credentials.store(new PasswordCredential(formData))
+                .then(() => {
+                    localStorage.setItem(hostname) = hostInput.value;
+                });
+            }
+
+            function runCounter(interval, credentials) {
+                console.log('Counter started');
+                let seconds = interval;
+                let counterInstance =  setInterval(function() {
+                    if (seconds != 0) {
+                        seconds--;
+                        counter.innerText = seconds;
+                        clearInterval(counterInstance);
+                    }
+                    else {
+                        compareIps(credentials, sessionStorage.getItem(ip), getIp());
+                    }
+                }, interval * 1000);
+            }
+        </script>
     </body>
 </html>

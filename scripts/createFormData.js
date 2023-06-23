@@ -3,5 +3,5 @@ function createFormData(form) {
     let formData = new FormData(form);
     localStorage.setItem('hostname', formData.get('hostname'));
     formData.delete('hostname');
-    return formData;
+    showApp(formData, localStorage.getItem(hostname));
 }

@@ -3,7 +3,7 @@ function checkCredentialsExistence() {
     .then((cred) => {
         if (cred) {
             if (localStorage.getItem(hostname)) {
-                showApp(cred);
+                showApp(cred, localStorage.getItem(hostname));
             }
             else {
                 showLogin();
