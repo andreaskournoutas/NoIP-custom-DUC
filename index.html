@@ -115,9 +115,10 @@
             function createFormData(form) {
                 console.log('Creating formdata...');
                 let formData = new FormData(form);
+                let hostname = formData.get('hostname');
                 localStorage.setItem('hostname', formData.get('hostname'));
                 formData.delete('hostname');
-                showApp(formData, localStorage.getItem(hostname));
+                showApp(formData, hostname);
             }
 
             function getIp(formData, hostname) {
@@ -144,9 +145,8 @@
             function updateService(credentials, hostname, currentIp) {
                 console.log('Service update request initialized');
                 fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
-                    headers: {
-                        'Authorization': `Basic ${encodeCredentials(credentials)}`
-                    }
+                    mode: 'no-cors',
+                    headers: {'Authorization': `Basic ${encodeCredentials(credentials)}`}
                 })
                 .then((response) => {
                     if (response.ok) {
