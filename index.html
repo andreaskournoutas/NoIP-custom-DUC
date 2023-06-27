@@ -12,7 +12,7 @@
             }
             form {
                 max-width: 500px;
-
+                min-width: 250px;
             }
         </style>
     </head>
@@ -86,7 +86,8 @@
                 const cred = navigator.credentials.get({password: true})
                 .then((cred) => {
                     if (cred) {
-                        if (localStorage.getItem(hostname)) {
+                        let hostname = localStorage.getItem(hostname);
+                        if (hostname) {
                             showApp(cred, localStorage.getItem(hostname));
                         }
                         else {
@@ -106,7 +107,7 @@
             }
 
             function showApp(formData, hostname) {
-                console.log('Showing app interface... (Current hostname: )' + hostname);
+                console.log('Showing app interface...');
                 login.classList.add('d-none');
                 app.classList.remove('d-none');
                 getIp(formData, hostname);
@@ -122,14 +123,14 @@
             }
 
             function getIp(formData, hostname) {
-                console.log('IP detection initialized (Current hostname: )' + hostname);
+                console.log('IP detection initialized');
                 fetch('https://api.ipify.org?format=json')
                 .then((response) => response.json())
                 .then((response) => {compareIps(formData, hostname, sessionStorage.getItem(ip), response.ip)});
             }
 
             function compareIps(credentials, hostname, currentIp, fetchedIp) {
-                console.log('Comparing current with fetched IP... (Current hostname: )' + hostname);
+                console.log('Comparing current with fetched IP...');
                 if (!currentIp) {}
                 if (currentIp != fetchedIp) {
                     currentIp = fetchedIp;
@@ -143,41 +144,41 @@
             }
 
             function updateService(credentials, hostname, currentIp) {
-                console.log('Service update request initialized (Current hostname: )' + hostname);
-                // fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
-                //     mode: 'no-cors',
-                //     headers: {'Authorization': `Basic ${encodeCredentials(credentials)}`}
-                // })
-                // .then((response) => {
-                //     if (response.ok) {
-                //         console.log('Service update successful');
-                //         result.classList.remove('text-danger');
-                //         result.classList.add('text-success');
-                //         result.innerText = 'SUCCESSFULLY';
-                //     }
-                //     else {
-                //         console.log('Service update unsuccessful');
-                //         result.classList.remove('text-success');
-                //         result.classList.add('text-danger');
-                //         result.innerText = 'UNSUCCESSFULLY';
-                //     }
-                //     runCounter(interval, credentials, hostname);
-                // });
+                console.log('Service update request initialized');
+                fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
+                    mode: 'no-cors',
+                    headers: {'Authorization': `Basic ${encodeCredentials(credentials)}`}
+                })
+                .then((response) => {
+                    if (response.ok) {
+                        console.log('Service update successful');
+                        result.classList.remove('text-danger');
+                        result.classList.add('text-success');
+                        result.innerText = 'SUCCESSFULLY';
+                    }
+                    else {
+                        console.log('Service update unsuccessful');
+                        result.classList.remove('text-success');
+                        result.classList.add('text-danger');
+                        result.innerText = 'UNSUCCESSFULLY';
+                    }
+                    runCounter(interval, credentials, hostname);
+                });
             }
 
             function encodeCredentials(credentials) {
                 return btoa(`${credentials.get('username')}:${credentials.get('password')}`);
             }
 
-            function saveCredentials(formData) {
-                navigator.credentials.store(new PasswordCredential(formData))
+            function saveCredentials(credentials, hostname) {
+                navigator.credentials.store(new PasswordCredential(credentials))
                 .then(() => {
-                    localStorage.setItem(hostname) = hostInput.value;
+                    localStorage.setItem(hostname) = hostname;
                 });
             }
 
             function runCounter(interval, credentials, hostname) {
-                console.log('Counter started (Current hostname: )' + hostname);
+                console.log('Counter started');
                 let seconds = interval;
                 counter.innerText = seconds;
                 let counterInstance =  setInterval(() => {
