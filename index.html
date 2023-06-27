@@ -39,7 +39,7 @@
                                     <input type="text" class="form-control" id="hostname" name="hostname" placeholder=" " required>
                                     <label for="hostname">Hostname</label>
                                 </div>
-                                <button id="submit" type="button" class="btn btn-lg bg-primary text-dark d-block w-100">Login</button>
+                                <button id="submit" type="button" class="btn btn-lg bg-primary text-dark d-block w-100" onclick="createFormData()">Login</button>
                             </form>
                         </div>
                     </section>
@@ -78,7 +78,7 @@
                   result = document.getElementById('result'),
                   interval = 300;
 
-            submit.addEventListener('click', createFormData());
+            // submit.addEventListener('click', createFormData());
 
             showLogin();
 
@@ -105,11 +105,11 @@
                 login.classList.remove('d-none');
             }
 
-            function showApp(formData, hostname) {
+            async function showApp(formData, hostname) {
                 console.log('Showing app interface...')
                 login.classList.add('d-none');
                 app.classList.remove('d-none');
-                compareIps(formData, hostname, sessionStorage.getItem(ip), getIp());
+                compareIps(formData, hostname, sessionStorage.getItem(ip), await getIp());
             };
 
             function createFormData(form) {
@@ -129,6 +129,7 @@
 
             function compareIps(credentials, hostname, currentIp, fetchedIp) {
                 console.log('Comparing current with fetched IP...');
+                if (!currentIp) {}
                 if (currentIp != fetchedIp) {
                     currentIp = fetchedIp;
                     sessionStorage.setItem('ip', currentIp);
@@ -182,9 +183,9 @@
                     if (seconds != 0) {
                         seconds--;
                         counter.innerText = seconds;
-                        clearInterval(counterInstance);
                     }
                     else {
+                        clearInterval(counterInstance);
                         compareIps(credentials, sessionStorage.getItem(ip), getIp());
                     }
                 }, interval * 1000);
