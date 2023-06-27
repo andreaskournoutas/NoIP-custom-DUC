@@ -39,7 +39,7 @@
                                     <input type="text" class="form-control" id="hostname" name="hostname" placeholder=" " required>
                                     <label for="hostname">Hostname</label>
                                 </div>
-                                <button id="submit" type="button" class="btn btn-lg bg-primary text-dark d-block w-100" onclick="createFormData()">Login</button>
+                                <button id="submit" type="button" class="btn btn-lg bg-primary text-dark d-block w-100" onclick="createFormData(this.parentElement)">Login</button>
                             </form>
                         </div>
                     </section>
@@ -106,7 +106,7 @@
             }
 
             function showApp(formData, hostname) {
-                console.log('Showing app interface...')
+                console.log('Showing app interface... (Current hostname: )' + hostname);
                 login.classList.add('d-none');
                 app.classList.remove('d-none');
                 getIp(formData, hostname);
@@ -122,14 +122,14 @@
             }
 
             function getIp(formData, hostname) {
-                console.log('IP detection initialized');
+                console.log('IP detection initialized (Current hostname: )' + hostname);
                 fetch('https://api.ipify.org?format=json')
                 .then((response) => response.json())
                 .then((response) => {compareIps(formData, hostname, sessionStorage.getItem(ip), response.ip)});
             }
 
             function compareIps(credentials, hostname, currentIp, fetchedIp) {
-                console.log('Comparing current with fetched IP...');
+                console.log('Comparing current with fetched IP... (Current hostname: )' + hostname);
                 if (!currentIp) {}
                 if (currentIp != fetchedIp) {
                     currentIp = fetchedIp;
@@ -143,26 +143,26 @@
             }
 
             function updateService(credentials, hostname, currentIp) {
-                console.log('Service update request initialized');
-                fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
-                    mode: 'no-cors',
-                    headers: {'Authorization': `Basic ${encodeCredentials(credentials)}`}
-                })
-                .then((response) => {
-                    if (response.ok) {
-                        console.log('Service update successful');
-                        result.classList.remove('text-danger');
-                        result.classList.add('text-success');
-                        result.innerText = 'SUCCESSFULLY';
-                    }
-                    else {
-                        console.log('Service update unsuccessful');
-                        result.classList.remove('text-success');
-                        result.classList.add('text-danger');
-                        result.innerText = 'UNSUCCESSFULLY';
-                    }
-                    runCounter(interval, credentials, hostname);
-                });
+                console.log('Service update request initialized (Current hostname: )' + hostname);
+                // fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
+                //     mode: 'no-cors',
+                //     headers: {'Authorization': `Basic ${encodeCredentials(credentials)}`}
+                // })
+                // .then((response) => {
+                //     if (response.ok) {
+                //         console.log('Service update successful');
+                //         result.classList.remove('text-danger');
+                //         result.classList.add('text-success');
+                //         result.innerText = 'SUCCESSFULLY';
+                //     }
+                //     else {
+                //         console.log('Service update unsuccessful');
+                //         result.classList.remove('text-success');
+                //         result.classList.add('text-danger');
+                //         result.innerText = 'UNSUCCESSFULLY';
+                //     }
+                //     runCounter(interval, credentials, hostname);
+                // });
             }
 
             function encodeCredentials(credentials) {
@@ -177,17 +177,21 @@
             }
 
             function runCounter(interval, credentials, hostname) {
-                console.log('Counter started');
+                console.log('Counter started (Current hostname: )' + hostname);
                 let seconds = interval;
-                let counterInstance =  setInterval(function() {
-                    if (seconds != 0) {
-                        seconds--;
-                        counter.innerText = seconds;
-                    }
-                    else {
-                        clearInterval(counterInstance);
-                        getIp(credentials, hostname);
-                    }
+                counter.innerText = seconds;
+                let counterInstance =  setInterval(() => {
+                    let clockTick = setInterval(() => {
+                        if (seconds != 0) {
+                            seconds--;
+                            counter.innerText = seconds;
+                        }
+                        else {
+                            clearInterval(clockTick);
+                            clearInterval(counterInstance);
+                            getIp(credentials, hostname);
+                        }
+                    }, 1000);
                 }, interval * 1000);
             }
         </script>
