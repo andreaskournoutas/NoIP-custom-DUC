@@ -143,7 +143,7 @@
 
             function updateService(credentials, hostname, currentIp) {
                 console.log('Service update request initialized');
-                fetch('http://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
+                fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
                     headers: {
                         'Authorization': `Basic ${encodeCredentials(credentials)}`
                     }
