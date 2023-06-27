@@ -105,11 +105,11 @@
                 login.classList.remove('d-none');
             }
 
-            async function showApp(formData, hostname) {
+            function showApp(formData, hostname) {
                 console.log('Showing app interface...')
                 login.classList.add('d-none');
                 app.classList.remove('d-none');
-                compareIps(formData, hostname, sessionStorage.getItem(ip), await getIp());
+                getIp(formData, hostname);
             };
 
             function createFormData(form) {
@@ -120,11 +120,11 @@
                 showApp(formData, localStorage.getItem(hostname));
             }
 
-            function getIp() {
+            function getIp(formData, hostname) {
                 console.log('IP detection initialized');
                 fetch('https://api.ipify.org?format=json')
                 .then((response) => response.json())
-                .then((response) => {return response.ip});
+                .then((response) => {compareIps(formData, hostname, sessionStorage.getItem(ip), response.ip)});
             }
 
             function compareIps(credentials, hostname, currentIp, fetchedIp) {
@@ -176,7 +176,7 @@
                 });
             }
 
-            function runCounter(interval, credentials) {
+            function runCounter(interval, credentials, hostname) {
                 console.log('Counter started');
                 let seconds = interval;
                 let counterInstance =  setInterval(function() {
@@ -186,7 +186,7 @@
                     }
                     else {
                         clearInterval(counterInstance);
-                        compareIps(credentials, sessionStorage.getItem(ip), getIp());
+                        getIp(credentials, hostname);
                     }
                 }, interval * 1000);
             }
