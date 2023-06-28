@@ -126,7 +126,13 @@
                 console.log('IP detection initialized');
                 fetch('https://api.ipify.org?format=json')
                 .then((response) => response.json())
-                .then((response) => {compareIps(formData, hostname, sessionStorage.getItem(ip), response.ip)});
+                .then((response) => {compareIps(formData, hostname, sessionStorage.getItem(ip), response.ip)})
+                .catch((error) => {
+                    console.log(error);
+                    ip.classList.add('text-danger');
+                    ip.innerText = 'FAILED TO GET IP';
+                    runCounter(60, formData, hostname);
+                });
             }
 
             function compareIps(credentials, hostname, currentIp, fetchedIp) {
@@ -135,6 +141,7 @@
                 if (currentIp != fetchedIp) {
                     currentIp = fetchedIp;
                     sessionStorage.setItem('ip', currentIp);
+                    ip.classList.remove('text-danger');
                     ip.innerText = currentIp;
                     updateService(credentials, hostname, currentIp);
                 }
@@ -145,8 +152,10 @@
 
             function updateService(credentials, hostname, currentIp) {
                 console.log('Service update request initialized');
+                console.log(encodeCredentials(credentials));
                 fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
                     mode: 'no-cors',
+                    credentials: 'include',
                     headers: {'Authorization': `Basic ${encodeCredentials(credentials)}`}
                 })
                 .then((response) => {
@@ -163,12 +172,19 @@
                         result.innerText = 'UNSUCCESSFULLY';
                     }
                     runCounter(interval, credentials, hostname);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    result.classList.remove('text-success');
+                    result.classList.add('text-danger');
+                    result.innerText = error;
+                    runCounter(interval, credentials, hostname);
                 });
             }
 
-            function encodeCredentials(credentials) {
-                return btoa(`${credentials.get('username')}:${credentials.get('password')}`);
-            }
+            // function encodeCredentials(credentials) {
+            //     return btoa(`${credentials.get('username')}:${credentials.get('password')}`);
+            // }
 
             function saveCredentials(credentials, hostname) {
                 navigator.credentials.store(new PasswordCredential(credentials))
@@ -181,19 +197,16 @@
                 console.log('Counter started');
                 let seconds = interval;
                 counter.innerText = seconds;
-                let counterInstance =  setInterval(() => {
-                    let clockTick = setInterval(() => {
-                        if (seconds != 0) {
-                            seconds--;
-                            counter.innerText = seconds;
-                        }
-                        else {
-                            clearInterval(clockTick);
-                            clearInterval(counterInstance);
-                            getIp(credentials, hostname);
-                        }
-                    }, 1000);
-                }, interval * 1000);
+                let counterInstance = setTimeout(() => {
+                    if (seconds != 0) {
+                        seconds--;
+                        counter.innerText = seconds;
+                    }
+                    else {
+                        clearInterval(counterInstance);
+                        getIp(credentials, hostname);
+                    }
+                }, 1000);
             }
         </script>
     </body>
