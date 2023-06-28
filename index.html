@@ -125,8 +125,10 @@
             function getIp(formData, hostname) {
                 console.log('IP detection initialized');
                 ip.classList.remove('text-danger');
-                ip.innerText = 'Getting Ip...';
-                fetch('https://api.ipify.org?format=json')
+                ip.innerText = 'Getting IP...';
+                fetch('https://api.ipify.org?format=json', {
+                    mode: 'no-cors'
+                })
                 .then((response) => response.json())
                 .then((response) => {compareIps(formData, hostname, sessionStorage.getItem(ip), response.ip)})
                 .catch((error) => {
@@ -154,12 +156,13 @@
 
             function updateService(credentials, hostname, currentIp) {
                 console.log('Service update request initialized');
-                console.log(encodeCredentials(credentials));
+                console.log(credentials.get('username') + ':' + credentials.get('password'));
+                console.log(btoa(credentials.get('username') + ':' + credentials.get('password')));
                 result.innerText = 'Syncing...';
                 fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
                     mode: 'no-cors',
-                    credentials: 'include',
-                    headers: {'Authorization': 'Basic ' +  btoa(credentials.get('username') + ':' + credentials.get('password'))}
+                    // credentials: 'include',
+                    headers: new Headers({'Authorization': 'Basic ' +  btoa(credentials.get('username') + ':' + credentials.get('password'))})
                 })
                 .then((response) => {
                     if (response.ok) {
