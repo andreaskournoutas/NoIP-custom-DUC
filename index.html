@@ -159,10 +159,11 @@
                 console.log('Service update request initialized');
                 console.log(credentials.get('username') + ':' + credentials.get('password'));
                 console.log(btoa(credentials.get('username') + ':' + credentials.get('password')));
+                result.classList.remove('text-danger');
+                result.classList.remove('text-success');
                 result.innerText = 'Syncing...';
                 fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
                     mode: 'no-cors',
-                    // credentials: 'include',
                     headers: new Headers({'Authorization': 'Basic ' +  btoa(credentials.get('username') + ':' + credentials.get('password'))})
                 })
                 .then((response) => {
