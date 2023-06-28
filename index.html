@@ -14,6 +14,9 @@
                 max-width: 500px;
                 min-width: 250px;
             }
+            .ratio {
+                width: 145px;
+            }
         </style>
     </head>
     <body class="h-100 d-flex align-items-center justify-content-center">
@@ -46,7 +49,7 @@
                     <section id="app" class="row g-5 justify-content-center d-none">
                         <div class="col-12 col-lg-auto mb-5 mb-lg-0">
                             <span class="d-block text-center h5 mb-3">Next sync attempt in:</span>
-                            <div class="position-relative ratio ratio-1x1 p-5 w-75 mx-auto">
+                            <div class="position-relative ratio ratio-1x1 mx-auto">
                                 <div class="spinner-border text-primary"></div>
                                 <div class="position-absolute top-50 start-50 translate-middle w-auto h-auto text-nowrap text-center">
                                     <span id="counter" class="h2">0</span>
@@ -126,9 +129,7 @@
                 console.log('IP detection initialized');
                 ip.classList.remove('text-danger');
                 ip.innerText = 'Getting IP...';
-                fetch('https://api.ipify.org?format=json', {
-                    mode: 'no-cors'
-                })
+                fetch('https://api.ipify.org?format=json')
                 .then((response) => response.json())
                 .then((response) => {compareIps(formData, hostname, sessionStorage.getItem(ip), response.ip)})
                 .catch((error) => {
