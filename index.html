@@ -56,11 +56,11 @@
                         </div>
                         <div class="col-12 col-lg-auto">
                             <div class="mb-5">
-                                <span class="d-block text-center">Current ip is:</span>
+                                <span class="d-block text-center">Current IP:</span>
                                 <span id="ip" class="d-block text-center h2">&nbsp;</span>
                             </div>
                             <div>
-                                <span class="d-block text-center">Sync was performed:</span>
+                                <span class="d-block text-center">Update status:</span>
                                 <span id="result" class="d-block text-center h2">&nbsp;</span>
                             </div>
                         </div>
@@ -124,6 +124,8 @@
 
             function getIp(formData, hostname) {
                 console.log('IP detection initialized');
+                ip.classList.remove('text-danger');
+                ip.innerText = 'Getting Ip...';
                 fetch('https://api.ipify.org?format=json')
                 .then((response) => response.json())
                 .then((response) => {compareIps(formData, hostname, sessionStorage.getItem(ip), response.ip)})
@@ -153,23 +155,24 @@
             function updateService(credentials, hostname, currentIp) {
                 console.log('Service update request initialized');
                 console.log(encodeCredentials(credentials));
+                result.innerText = 'Syncing...';
                 fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
                     mode: 'no-cors',
                     credentials: 'include',
-                    headers: {'Authorization': `Basic ${encodeCredentials(credentials)}`}
+                    headers: {'Authorization': 'Basic ' +  btoa(credentials.get('username') + ':' + credentials.get('password'))}
                 })
                 .then((response) => {
                     if (response.ok) {
                         console.log('Service update successful');
                         result.classList.remove('text-danger');
                         result.classList.add('text-success');
-                        result.innerText = 'SUCCESSFULLY';
+                        result.innerText = 'SUCCESSFUL';
                     }
                     else {
                         console.log('Service update unsuccessful');
                         result.classList.remove('text-success');
                         result.classList.add('text-danger');
-                        result.innerText = 'UNSUCCESSFULLY';
+                        result.innerText = 'UNSUCCESSFUL';
                     }
                     runCounter(interval, credentials, hostname);
                 })
@@ -197,7 +200,7 @@
                 console.log('Counter started');
                 let seconds = interval;
                 counter.innerText = seconds;
-                let counterInstance = setTimeout(() => {
+                let counterInstance = setInterval(() => {
                     if (seconds != 0) {
                         seconds--;
                         counter.innerText = seconds;
