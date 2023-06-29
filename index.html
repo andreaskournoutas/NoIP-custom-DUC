@@ -164,7 +164,7 @@
                     mode: 'no-cors',
                     headers: new Headers(
                         {
-                            'Authorization': `Basic ${base64.encode(`${credentials.get('username')}:${credentials.get('password')}`)}`
+                            'Authorization': `Basic ${btoa(`${credentials.get('username')}:${credentials.get('password')}`)}`
                         }
                     )
                 })
