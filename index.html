@@ -91,7 +91,7 @@
                     if (cred) {
                         let hostname = localStorage.getItem(hostname);
                         if (hostname) {
-                            showApp(cred, localStorage.getItem(hostname));
+                            showApp(cred, hostname);
                         }
                         else {
                             showLogin();
@@ -136,13 +136,12 @@
                     console.log(error);
                     ip.classList.add('text-danger');
                     ip.innerText = 'FAILED TO GET IP';
-                    runCounter(60, formData, hostname);
+                    setTimeout(getIp(formData, hostname), 5000)
                 });
             }
 
             function compareIps(credentials, hostname, currentIp, fetchedIp) {
                 console.log('Comparing current with fetched IP...');
-                if (!currentIp) {}
                 if (currentIp != fetchedIp) {
                     currentIp = fetchedIp;
                     sessionStorage.setItem('ip', currentIp);
@@ -164,7 +163,7 @@
                     mode: 'no-cors',
                     headers: new Headers(
                         {
-                            'Authorization': `Basic ${btoa(`${credentials.get('username')}:${credentials.get('password')}`)}`
+                            'Authorization': 'Basic ' +  btoa(credentials.get('username') + ':' + credentials.get('password'))
                         }
                     )
                 })
