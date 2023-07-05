@@ -165,35 +165,32 @@
                     mode: 'no-cors',
                     headers: new Headers(
                         {
-                            'Authorization': 'Basic ' +  btoa(credentials.get('username') + ':' + credentials.get('password'))
-                            // 'Authorization': 'Basic YW5kcmVhc2tvdXJub3V0YXNAZ21haWwuY29tOkRyQGRuQHVzIzYyNDU4'
+                            'Authorization': `Basic ${btoa(`${credentials.get('username')}:${credentials.get('password')}`)}`
                         }
                     )
                 })
                 .then((response) => {
-                    if (response.ok) {
-                        console.log('Service update successful');
+                    // if (response.ok) {
+                        console.log('Service update successful: ' + response);
                         result.classList.remove('text-danger');
                         result.classList.add('text-success');
                         result.innerText = 'SUCCESSFUL';
                         runCounter(interval, credentials, hostname);
-                    }
-                    else {
-                        console.log('Service update unsuccessful');
-                        result.classList.remove('text-success');
-                        result.classList.add('text-danger');
-                        result.innerText = 'UNSUCCESSFUL';
-                        alert('Returning to login...');
-                        showLogin();
-                    }
+                    // }
+                    // else {
+                    //     console.log('Service update unsuccessful');
+                    //     result.classList.remove('text-success');
+                    //     result.classList.add('text-danger');
+                    //     result.innerText = 'UNSUCCESSFUL';
+                    //     alert('Returning to login...');
+                    //     showLogin();
+                    // }
                 })
                 .catch((error) => {
                     console.log(error);
                     result.classList.remove('text-success');
                     result.classList.add('text-danger');
                     result.innerText = error;
-                    alert('Returning to login...');
-                    showLogin();
                 });
             }
 
