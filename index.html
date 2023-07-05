@@ -113,7 +113,7 @@
                 console.log('Showing app interface...');
                 login.classList.add('d-none');
                 app.classList.remove('d-none');
-                getIp(formData, hostname);
+                getIp(formData, null, hostname);
             };
 
             function createFormData(form) {
@@ -125,18 +125,18 @@
                 showApp(formData, hostname);
             }
 
-            function getIp(formData, hostname) {
+            function getIp(formData, currentIp, hostname) {
                 console.log('IP detection initialized');
                 ip.classList.remove('text-danger');
                 ip.innerText = 'Getting IP...';
                 fetch('https://api.ipify.org?format=json')
                 .then((response) => response.json())
-                .then((response) => {compareIps(formData, hostname, sessionStorage.getItem(ip), response.ip)})
+                .then((response) => {compareIps(formData, hostname, currentIp || sessionStorage.getItem(ip), response.ip)})
                 .catch((error) => {
                     console.log(error);
                     ip.classList.add('text-danger');
                     ip.innerText = 'FAILED TO GET IP';
-                    setTimeout(getIp(formData, hostname), 5000)
+                    setTimeout(getIp(formData, currentIp || sessionStorage.getItem(ip), hostname), 5000)
                 });
             }
 
@@ -159,11 +159,14 @@
                 result.classList.remove('text-danger');
                 result.classList.remove('text-success');
                 result.innerText = 'Syncing...';
+                console.log(credentials.get('username') + ':' + credentials.get('password'));
+                console.log(btoa(credentials.get('username') + ':' + credentials.get('password')));
                 fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
                     mode: 'no-cors',
                     headers: new Headers(
                         {
                             'Authorization': 'Basic ' +  btoa(credentials.get('username') + ':' + credentials.get('password'))
+                            // 'Authorization': 'Basic YW5kcmVhc2tvdXJub3V0YXNAZ21haWwuY29tOkRyQGRuQHVzIzYyNDU4'
                         }
                     )
                 })
@@ -173,21 +176,24 @@
                         result.classList.remove('text-danger');
                         result.classList.add('text-success');
                         result.innerText = 'SUCCESSFUL';
+                        runCounter(interval, credentials, hostname);
                     }
                     else {
                         console.log('Service update unsuccessful');
                         result.classList.remove('text-success');
                         result.classList.add('text-danger');
                         result.innerText = 'UNSUCCESSFUL';
+                        alert('Returning to login...');
+                        showLogin();
                     }
-                    runCounter(interval, credentials, hostname);
                 })
                 .catch((error) => {
                     console.log(error);
                     result.classList.remove('text-success');
                     result.classList.add('text-danger');
                     result.innerText = error;
-                    runCounter(interval, credentials, hostname);
+                    alert('Returning to login...');
+                    showLogin();
                 });
             }
 
