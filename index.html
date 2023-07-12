@@ -27,22 +27,22 @@
             <main>
                 <div class="container">
                     <section id="login" class="mx-auto d-none card">
-                        <h2 class="text-primary h4 card-header">No-IP.com login</h2>
+                        <h2 class="text-primary h4 card-header"><label for="hostname">No-IP.com hostname</label></h2>
                         <div class="card-body">
                             <form id="form" class="mx-auto" autocomplete="on">
-                                <div class="form-floating mb-3">
+                                <!-- <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="username" name="username" placeholder=" " required>
                                     <label for="username">Email</label>
                                 </div>
                                 <div class="form-floating mb-3">
                                     <input type="password" class="form-control" id="password" name="password" placeholder=" " required>
                                     <label for="password">Password</label>
-                                </div>
-                                <div class="form-floating mb-3">
+                                </div> -->
+                                <div class="mb-3">
                                     <input type="text" class="form-control" id="hostname" name="hostname" placeholder=" " required>
-                                    <label for="hostname">Hostname</label>
+                                    <!-- <label for="hostname">Hostname</label> -->
                                 </div>
-                                <button id="submit" type="button" class="btn btn-lg bg-primary text-dark d-block w-100" onclick="createFormData(this.parentElement)">Login</button>
+                                <button id="submit" type="button" class="btn btn-lg bg-primary text-dark d-block w-100" onclick="createFormData(this.parentElement)">Next</button>
                             </form>
                         </div>
                     </section>
@@ -68,6 +68,7 @@
                             </div>
                         </div>
                     </section>
+                    <iframe id="iframe" src="" frameborder="0" class="d-none" title="No-IP.com iframe"></iframe>
                 </div>
             </main>
         </div>
@@ -79,6 +80,7 @@
                   counter = document.getElementById('counter'),
                   ip = document.getElementById('ip'),
                   result = document.getElementById('result'),
+                  iframe = document.getElementById('iframe'),
                   interval = 300;
 
             // submit.addEventListener('click', createFormData());
@@ -120,8 +122,8 @@
                 console.log('Creating formdata...');
                 let formData = new FormData(form);
                 let hostname = formData.get('hostname');
-                localStorage.setItem('hostname', formData.get('hostname'));
-                formData.delete('hostname');
+                // localStorage.setItem('hostname', formData.get('hostname'));
+                // formData.delete('hostname');
                 showApp(formData, hostname);
             }
 
@@ -131,12 +133,12 @@
                 ip.innerText = 'Getting IP...';
                 fetch('https://api.ipify.org?format=json')
                 .then((response) => response.json())
-                .then((response) => {compareIps(formData, hostname, currentIp || sessionStorage.getItem(ip), response.ip)})
+                .then((response) => {compareIps(formData, hostname, currentIp, response.ip)})
                 .catch((error) => {
                     console.log(error);
                     ip.classList.add('text-danger');
                     ip.innerText = 'FAILED TO GET IP';
-                    setTimeout(getIp(formData, currentIp || sessionStorage.getItem(ip), hostname), 5000)
+                    setTimeout(getIp(formData, currentIp, hostname), 5000)
                 });
             }
 
@@ -144,12 +146,15 @@
                 console.log('Comparing current with fetched IP...');
                 if (currentIp != fetchedIp) {
                     currentIp = fetchedIp;
-                    sessionStorage.setItem('ip', currentIp);
+                    // sessionStorage.setItem('ip', currentIp);
                     ip.classList.remove('text-danger');
                     ip.innerText = currentIp;
                     updateService(credentials, hostname, currentIp);
                 }
                 else {
+                    result.classList.remove('text-danger');
+                    result.classList.add('text-success');
+                    result.innerText = 'IP IS UP TO DATE';
                     runCounter(interval, credentials, hostname);
                 }
             }
@@ -161,38 +166,39 @@
                 result.innerText = 'Syncing...';
                 console.log(credentials.get('username') + ':' + credentials.get('password'));
                 console.log(btoa(credentials.get('username') + ':' + credentials.get('password')));
-                fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
-                    mode: 'no-cors',
-                    headers: new Headers(
-                        {
-                            // 'Authorization': `Basic ${btoa(`${credentials.get('username')}:${credentials.get('password')}`)}`
-                            'Authorization': 'Basic ' +  btoa(credentials.get('username') + ':' + credentials.get('password'))
-                        }
-                    )
-                })
-                .then((response) => {
-                    // if (response.ok) {
-                        console.log('Service update successful: ' + response);
-                        result.classList.remove('text-danger');
-                        result.classList.add('text-success');
-                        result.innerText = 'SUCCESSFUL';
-                        runCounter(interval, credentials, hostname);
-                    // }
-                    // else {
-                    //     console.log('Service update unsuccessful');
-                    //     result.classList.remove('text-success');
-                    //     result.classList.add('text-danger');
-                    //     result.innerText = 'UNSUCCESSFUL';
-                    //     alert('Returning to login...');
-                    //     showLogin();
-                    // }
-                })
-                .catch((error) => {
-                    console.log(error);
-                    result.classList.remove('text-success');
-                    result.classList.add('text-danger');
-                    result.innerText = error;
-                });
+                iframe.src = 'https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp;
+                // fetch('https://dynupdate.no-ip.com/nic/update?hostname=' + hostname + '&myip=' + currentIp, {
+                //     mode: 'no-cors',
+                //     headers: new Headers(
+                //         {
+                //             'Authorization': `Basic ${btoa(`${credentials.get('username')}:${credentials.get('password')}`)}`
+                //             'Authorization': 'Basic ' +  btoa(credentials.get('username') + ':' + credentials.get('password'))
+                //         }
+                //     )
+                // })
+                // .then((response) => {
+                //     if (response.ok) {
+                //         console.log('Service update successful: ' + response);
+                //         result.classList.remove('text-danger');
+                //         result.classList.add('text-success');
+                //         result.innerText = 'SUCCESSFUL';
+                //         runCounter(interval, credentials, hostname, currentIp);
+                //     }
+                //     else {
+                //         console.log('Service update unsuccessful');
+                //         result.classList.remove('text-success');
+                //         result.classList.add('text-danger');
+                //         result.innerText = 'UNSUCCESSFUL';
+                //         alert('Returning to login...');
+                //         showLogin();
+                //     }
+                // })
+                // .catch((error) => {
+                //     console.log(error);
+                //     result.classList.remove('text-success');
+                //     result.classList.add('text-danger');
+                //     result.innerText = error;
+                // });
             }
 
             // function encodeCredentials(credentials) {
@@ -206,7 +212,7 @@
                 });
             }
 
-            function runCounter(interval, credentials, hostname) {
+            function runCounter(interval, credentials, hostname, currentIp) {
                 console.log('Counter started');
                 let seconds = interval;
                 counter.innerText = seconds;
@@ -217,10 +223,12 @@
                     }
                     else {
                         clearInterval(counterInstance);
-                        getIp(credentials, hostname);
+                        getIp(credentials, currentIp, hostname);
                     }
                 }, 1000);
             }
+
+            iframe.addEventListener('loaded', )
         </script>
     </body>
 </html>
